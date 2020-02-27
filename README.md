@@ -41,7 +41,7 @@ To use the **Google Maps API key** in the project, open your text editor and wri
 VUE_APP_GOOGLE_MAP_TOKEN=<your Google Maps API key>
 ``
 
-Save the file as **.env.local** under the project <root> directory. The file will be ignored by git.
+Save the file as **.env.local** under the project root directory. The file will be ignored by git.
 
 ### Getting Start
 There are several commends to start the project:
@@ -53,7 +53,7 @@ $ npm run serve
 ```
 
 ##### Compiles and minifies for production
-After production built, you can deploy the files in <root>/dist to your production server.
+After production built, you can deploy the files inside folder /dist to your production server.
 ```
 $ npm run build
 ```
