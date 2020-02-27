@@ -36,9 +36,11 @@ $ npm install
 
 ##### Google Maps API key
 To use the **Google Maps API key** in the project, open your text editor and write in the first line:
+
 ``
 VUE_APP_GOOGLE_MAP_TOKEN=<your Google Maps API key>
 ``
+
 Save the file as **.env.local** under the project <root> directory. The file will be ignored by git.
 
 ### Getting Start
