@@ -4,7 +4,6 @@ import store from '@/store'
 import axios from 'axios'
 import { shallowMount, createLocalVue } from '@vue/test-utils'
 
-jest.mock('axios')
 const localVue = createLocalVue()
 
 describe('App.vue', () => {
@@ -29,22 +28,21 @@ describe('App.vue', () => {
       }
     })
 
-    axios.post.mockResolvedValue({
-      status: 'success',
-      data: {
-        token: 'testing-token'
-      }
-    })
-
     const data = {
       origin: 'Hoi Shing Rd, Chai Wan Kok',
       destination: 'Man Yiu St, Central'
     }
     wrapper.vm.setRoute(data)
+    const spy = jest.spyOn(wrapper.vm.$api, 'getToken').mockImplementation().mockResolvedValue({
+      status: 'success',
+      data: {
+        token: 'testing-token'
+      }
+    })
     wrapper.vm.submitRoute()
     await wrapper.vm.$nextTick()
 
-    expect(axios.post).toHaveBeenCalledWith('/route', data)
+    expect(spy).toHaveBeenCalledWith(data)
   })
 
   it('submit user input to api - failure', async () => {
@@ -59,17 +57,18 @@ describe('App.vue', () => {
       }
     })
 
-    axios.post.mockRejectedValue(new Error('server error'))
-
     const data = {
       origin: 'Hoi Shing Rd, Chai Wan Kok',
       destination: 'Man Yiu St, Central'
     }
     wrapper.vm.setRoute(data)
+    const spy = jest.spyOn(wrapper.vm.$api, 'getToken').mockImplementation().mockRejectedValue(
+      new Error('server error')
+    )
     wrapper.vm.submitRoute()
     await wrapper.vm.$nextTick()
 
-    expect(axios.post).toHaveBeenCalledWith('/route', data)
+    expect(spy).toHaveBeenCalledWith(data)
   })
 
   it('submit token to get waypoints - success', async () => {
@@ -84,7 +83,9 @@ describe('App.vue', () => {
       }
     })
 
-    axios.get.mockResolvedValue({
+    const token = 'testing-token'
+    wrapper.vm.setToken(token)
+    const spy = jest.spyOn(wrapper.vm.$api, 'getWaypoints').mockImplementation().mockResolvedValue({
       status: 'success',
       data: {
         path: [
@@ -96,13 +97,10 @@ describe('App.vue', () => {
         totalTime: 1800
       }
     })
-
-    const token = 'testing-token'
-    wrapper.vm.setToken(token)
     wrapper.vm.submitToken()
     await wrapper.vm.$nextTick()
 
-    expect(axios.get).toHaveBeenCalledWith(`/route/${token}`)
+    expect(spy).toHaveBeenCalledWith(token)
   })
 
   it('submit token to get waypoints - failure', async () => {
@@ -117,13 +115,14 @@ describe('App.vue', () => {
       }
     })
 
-    axios.get.mockRejectedValue(new Error('server error'))
-
     const token = 'testing-token'
     wrapper.vm.setToken(token)
+    const spy = jest.spyOn(wrapper.vm.$api, 'getWaypoints').mockImplementation().mockRejectedValue(
+      new Error('server error')
+    )
     wrapper.vm.submitToken()
     await wrapper.vm.$nextTick()
 
-    expect(axios.get).toHaveBeenCalledWith(`/route/${token}`)
+    expect(spy).toHaveBeenCalledWith(token)
   })
 })

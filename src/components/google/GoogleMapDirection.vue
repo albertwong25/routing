@@ -60,8 +60,7 @@ export default {
 
   methods: {
     ...mapActions([
-      'setSnackbar',
-      'setLoading'
+      'setSnackbar'
     ]),
     initDirection () {
       const { DirectionsService, DirectionsRenderer, InfoWindow } = this.google.maps
@@ -89,7 +88,7 @@ export default {
           this.directionsRendererObj.setDirections(result)
           this.setInfoWindow(result)
         } else {
-          this.mixinApiErrorHandler({ status }) // throw to error handler if status is not 'OK'
+          this.mixinGoogleErrorHandler({ status }) // throw to error handler if status is not 'OK'
         }
       })
     },

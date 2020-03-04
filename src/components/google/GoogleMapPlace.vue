@@ -46,8 +46,7 @@ export default {
 
   methods: {
     ...mapActions([
-      'setSnackbar',
-      'setLoading'
+      'setSnackbar'
     ]),
     initPlace () {
       const { AutocompleteSessionToken, AutocompleteService } = this.google.maps.places
@@ -72,8 +71,8 @@ export default {
             })
           })
         } else {
-          // this.mixinApiErrorHandler({ status })
-          // not necessary to info user even autocomplate call failed
+          // this.mixinGoogleErrorHandler({ status })
+          // not necessary to inform user even autocomplate call failed
         }
       })
     }

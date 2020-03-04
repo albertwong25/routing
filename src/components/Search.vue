@@ -8,75 +8,80 @@
         class="elevation-3 white"
         cols="11"
       >
-        <v-row
-          dense
-        >
-          <v-col
-            cols="10"
+        <v-form>
+          <v-row
+            dense
           >
-            <v-combobox
-              v-for="item in ['origin', 'destination']"
-              :key="item"
-              :ref="item"
-              v-model="route[item].text"
-              :items="route[item].autocomplete"
-              :search-input.sync="route[item].text"
-              :disabled="isLoading"
-              :label="$t(`${item}Label`)"
-              append-icon=""
-              class="ma-2"
-              color="deep-orange"
-              clear-icon="clear"
-              clearable
-              dense
-              hide-details
-              hide-no-data
-              hide-selected
-              outlined
-              @blur="resetAutoComplete(item)"
-              @click:clear="resetRoute(item)"
-              @input="updateRoute(item)"
-              @input.native="updateRoute(item)"
-            />
-          </v-col>
+            <v-col
+              cols="10"
+            >
+              <v-combobox
+                v-for="item in ['origin', 'destination']"
+                :key="item"
+                :ref="item"
+                v-model="route[item].text"
+                :items="route[item].autocomplete"
+                :search-input.sync="route[item].text"
+                :disabled="isLoading"
+                :label="$t(`${item}Label`)"
+                append-icon=""
+                class="ma-2"
+                color="deep-orange"
+                clear-icon="clear"
+                clearable
+                dense
+                hide-details
+                hide-no-data
+                hide-selected
+                outlined
+                @blur="resetAutoComplete(item)"
+                @click:clear="resetRoute(item)"
+                @input="updateRoute(item)"
+                @input.native="updateRoute(item)"
+                @keyup.enter="submitRoute"
+              />
+            </v-col>
 
-          <v-col
-            class="ma-auto"
-            cols="2"
+            <v-col
+              class="ma-auto"
+              cols="2"
+            >
+              <v-btn
+                :disabled="isLoading"
+                icon
+                @click="swapInput"
+              >
+                <v-icon>
+                  swap_vert
+                </v-icon>
+              </v-btn>
+            </v-col>
+          </v-row>
+
+          <v-row
+            justify="end"
+            dense
           >
             <v-btn
-              :disabled="isLoading"
-              icon
-              @click="swapInput"
+              :disabled="!route.origin.text || !route.destination.text || isLoading"
+              type="submit"
+              class="white--text ma-2"
+              color="deep-orange"
+              @click="submitRoute"
             >
-              <v-icon>
-                swap_vert
-              </v-icon>
+              {{ $t('submitButton') }}
             </v-btn>
-          </v-col>
-        </v-row>
 
-        <v-row
-          justify="end"
-          dense
-        >
-          <v-btn
-            :disabled="!route.origin.text || !route.destination.text || isLoading"
-            class="white--text ma-2"
-            color="deep-orange"
-            @click="submitRoute"
-          >
-            {{ $t('submitButton') }}
-          </v-btn>
-
-          <v-btn
-            :disabled="isLoading"
-            class="ma-2"
-            @click="resetInput"
-          >
-            {{ $t('resetButton') }}
-          </v-btn>
-        </v-row>
+            <v-btn
+              :disabled="isLoading"
+              type="reset"
+              class="ma-2"
+              @click="resetInput"
+            >
+              {{ $t('resetButton') }}
+            </v-btn>
+          </v-row>
+        </v-form>
 
         <div
           v-if="dataRouteResult.status"
@@ -115,6 +120,7 @@
           indeterminate
         />
       </v-col>
+
       <v-col
         class="pa-0"
         cols="1"
@@ -244,10 +250,18 @@ export default {
         reset[index] = this.route[index].text
       }
       // reset user input in store (multi input fields)
+      this.$emit('update:routeResult')
       this.$emit('update:route', reset)
     },
     submitRoute () {
+      // prevent submit for key enter if routes are empty / autocomplete is active / is loading
+      for (const item in this.route) {
+        if (!this.route[item].text || this.$refs[item][0].isMenuActive || this.isLoading) {
+          return false
+        }
+      }
       // emit confirmation to trigger api call
+      this.$emit('update:routeResult')
       this.$emit('submit:route')
     },
     // set local copy of autocomplete
@@ -265,17 +279,19 @@ export default {
 <style lang='sass' scoped>
 $breakpoint-xs: 600px
 
-@mixin xs-min
-  @media all and (min-width: $breakpoint-xs)
+@mixin xs-max
+  @media all and (max-width: $breakpoint-xs)
     @content
 
 .container
   position: absolute
   z-index: 1
+  max-width: 33.3%
+  min-width: 250px
 
-  @include xs-min
-    max-width: 33.3%
-    min-width: 260px
+  @include xs-max
+    max-width: 90%
+    min-width: 0
 
   .col
     border-radius: 10px

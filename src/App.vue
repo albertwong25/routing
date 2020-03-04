@@ -5,6 +5,7 @@
         :data-autocomplete="autocomplete"
         :data-route-result="routeResult"
         @update:route="setRoute"
+        @update:routeResult="setRouteResult"
         @update:autocomplete="setAutocomplete"
         @submit:route="submitRoute"
       />
@@ -70,15 +71,10 @@ export default {
     async submitRoute () {
       try {
         this.setLoading(true)
-        this.setRouteResult('', '') // clear route result before api call
         this.resetWaypoints() // clear waypoints before api call
 
-        // prevent get token again if origin and destination remain unchange
-        if (!this.getToken) {
-          const response = await this.$api.getToken(this.getRoute)
-
-          this.setToken(response.data.token)
-        }
+        const response = await this.$api.getToken(this.getRoute)
+        this.setToken(response.data.token)
         this.submitToken()
       } catch (error) {
         this.mixinApiErrorHandler(error)
@@ -92,7 +88,7 @@ export default {
 
         // set route result and waypoints when request success
         if (response.data.status === 'success') {
-          this.setRouteResult(response.data.status, '')
+          this.setRouteResult(response.data.status)
           this.setWaypoints({
             path: response.data.path,
             totalDistance: response.data.total_distance,
@@ -102,9 +98,9 @@ export default {
         } else if (response.data.status === 'in progress') {
           if (this.getRetryCount <= apiCfg.retryCount) {
             clearRetryCount = false
-            this.mixinApiRetry(apiCfg.retryDelay, 'submitToken')
+            this.mixinApiRetry(apiCfg.retryDelay, this.submitToken)
           } else { // request failed, retry time > maxmimum retry count
-            this.setRouteResult('', '')
+            this.setRouteResult()
             this.mixinApiErrorHandler({
               status: response.data.status,
               message: response.data.error
@@ -115,7 +111,7 @@ export default {
           this.setLoading(false)
         }
       } catch (error) {
-        this.setRouteResult('', '')
+        this.setRouteResult()
         this.mixinApiErrorHandler(error)
       }
       if (clearRetryCount) { // reset retry count for api call next time
@@ -127,7 +123,7 @@ export default {
       this.autocomplete = { ...this.autocomplete, ...autocomplete }
     },
     // update route result temp for search box
-    setRouteResult (status, message) {
+    setRouteResult (status = '', message = '') {
       this.routeResult = { status, message }
     }
   }

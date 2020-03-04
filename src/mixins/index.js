@@ -11,7 +11,7 @@ const mixin = {
       })
       window.setTimeout(() => {
         this.addRetryCount()
-        this[callback]()
+        callback()
       }, delay)
     },
     // centralize all api errors
@@ -31,6 +31,22 @@ const mixin = {
         show: true
       })
       this.setLoading(false)
+    },
+    // centralize all Google errors
+    mixinGoogleErrorHandler (error) {
+      // dummy handler
+      const text = error.status.split('_').map(word => {
+        return word.charAt(0).toUpperCase() + word.substr(1)
+      }).join(' ') // convert snake case to title case
+
+      // Google Map API errors:
+      // INVALID_REQUEST, MAX_WAYPOINTS_EXCEEDED, NOT_FOUND, OVER_QUERY_LIMIT, REQUEST_DENIED, UNKNOWN_ERROR, ZERO_RESULTS
+
+      this.setSnackbar({
+        text,
+        type: 'error',
+        show: true
+      })
     }
   }
 }

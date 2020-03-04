@@ -2,10 +2,8 @@ import Vuetify from 'vuetify'
 import Map from '@/components/Map'
 import GoogleMapLoader from '@/components/google/GoogleMapLoader'
 import store from '@/store'
-import axios from 'axios'
 import { mount, createLocalVue } from '@vue/test-utils'
 
-jest.mock('axios')
 const localVue = createLocalVue()
 
 describe('Map.vue', () => {
@@ -23,10 +21,6 @@ describe('Map.vue', () => {
       localVue,
       vuetify,
       store
-    })
-
-    axios.post.mockResolvedValue({
-      status: 'success'
     })
 
     store.dispatch('setWaypoints', {
